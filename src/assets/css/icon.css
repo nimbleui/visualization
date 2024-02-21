@@ -1,0 +1,98 @@
+@font-face {
+  font-family: "y-icon";
+  src: url('../font/iconfont.woff2?t=1704543230560') format('woff2'),
+       url('../font/iconfont.woff?t=1704543230560') format('woff'),
+       url('../font/iconfont.ttf?t=1704543230560') format('truetype');
+}
+
+.y-icon {
+  font-family: "y-icon" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.y-single:before {
+  content: "\e6e4";
+}
+
+.y-biserial:before {
+  content: "\e6e5";
+}
+
+.y-copy:before {
+  content: "\ec7a";
+}
+
+.y-unlock:before {
+  content: "\e629";
+}
+
+.y-lock:before {
+  content: "\e62a";
+}
+
+.y-pic:before {
+  content: "\e8ba";
+}
+
+.y-message:before {
+  content: "\e8be";
+}
+
+.y-edit:before {
+  content: "\e600";
+}
+
+.y-release:before {
+  content: "\e631";
+}
+
+.y-set:before {
+  content: "\e8b8";
+}
+
+.y-style:before {
+  content: "\e632";
+}
+
+.y-home:before {
+  content: "\e65d";
+}
+
+.y-back:before {
+  content: "\e613";
+}
+
+.y-forward:before {
+  content: "\e619";
+}
+
+.y-share:before {
+  content: "\e86f";
+}
+
+.y-layer:before {
+  content: "\e730";
+}
+
+.y-preview:before {
+  content: "\e649";
+}
+
+.y-night:before {
+  content: "\e71f";
+}
+
+.y-ce:before {
+  content: "\e645";
+}
+
+.y-component:before {
+  content: "\e604";
+}
+
+.y-day:before {
+  content: "\e68f";
+}
