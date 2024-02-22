@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { RouterView } from "vue-router";
+import YCacheRouterView from "@/components/YCacheRouterView";
 </script>
 
 <template>
   <div class="layout">
-    <RouterView />
+    <YCacheRouterView />
   </div>
 </template>
 

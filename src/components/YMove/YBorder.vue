@@ -103,7 +103,6 @@ useMouseMove(warpRef, {
     emits("change", result);
   },
   up() {
-    emits("change", { width: 0, height: 0, top: 0, left: 0 });
     emits("up", result);
   }
 });

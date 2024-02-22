@@ -15,7 +15,6 @@ export type MoveDirectionType = { vertical: MoveDirectionVertical; level: MoveDi
 
 export interface MoveEmitsTypes {
   (e: "change", data: MoveChangeOptions & { id: number | string }): void;
-  (e: "update:style", value: CSSProperties): void;
   (e: "update:active", value: string | number): void;
   (e: "select", value: string | number): void;
   (e: "direction", value: MoveDirectionType): void;

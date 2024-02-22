@@ -1,21 +1,22 @@
 <template>
-  <div ref="moveRef" :style="styles" class="y-move">
+  <div ref="moveRef" class="y-move">
     <slot />
     <YBorder
       v-if="id === active"
       :container="containerRef"
       @move="onChangeSize"
       @change="onChange"
-      @up="updateStyle"
+      @down="onDownSize"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, reactive, type CSSProperties } from "vue";
+import { computed, ref, reactive } from "vue";
 import type { MovePropsTypes, MoveChangeOptions, MoveEmitsTypes, MoveDirectionType } from "./types";
 import { useMouseMove, type MoveDataType } from "@nimble-ui/vue";
 import YBorder from "./YBorder.vue";
+import { onMounted } from "vue";
 
 defineOptions({
   name: "YMove"
@@ -32,74 +33,76 @@ const moveRef = ref<HTMLElement>();
 const scaleRef = computed(() => props.scale ?? 1);
 // 限制的边界元素
 const containerRef = computed(() => props.container);
-
-const selfStyle = reactive<CSSProperties>({});
-const styleRef = computed(() => props.style ?? selfStyle);
-
 const toNumber = (v: string | number) => parseInt("" + v);
-const updateStyle = (options: MoveChangeOptions) => {
-  const { top: st = 0, left: sl = 0, width: sw = 0, height: sh = 0 } = styleRef.value;
-  const { top: t, left: l, width: w, height: h } = options;
-  const top = toNumber(st) + t;
-  const left = toNumber(sl) + l;
-  const width = toNumber(sw) + w;
-  const height = toNumber(sh) + h;
-  styleRef.value.top = `${top}px`;
-  styleRef.value.left = `${left}px`;
-  styleRef.value.width = `${width}px`;
-  styleRef.value.height = `${height}px`;
-  emits("update:style", styleRef.value);
-  emits("change", { top, left, width, height, id: props.id });
+
+const startSize = reactive({ w: 0, h: 0, l: 0, t: 0 });
+const getMoveSize = () => {
+  if (!moveRef.value) return;
+  const { offsetHeight: h, offsetLeft: l, offsetWidth: w, offsetTop: t } = moveRef.value;
+  Object.assign(startSize, { w, h, l, t });
 };
 
-const { data } = useMouseMove(moveRef, {
+const setMoveStyle = (data: { width?: number; height?: number; left?: number; top?: number }) => {
+  if (!moveRef.value) return;
+  const { w, h, l, t } = startSize;
+  const { width = 0, height = 0, left = 0, top = 0 } = data;
+  const value = {
+    id: props.id,
+    top: t + top,
+    left: l + left,
+    width: w + width,
+    height: h + height
+  };
+  moveRef.value.style.top = `${value.top}px`;
+  moveRef.value.style.left = `${value.left}px`;
+  moveRef.value.style.width = `${value.width}px`;
+  moveRef.value.style.height = `${value.height}px`;
+  emits("change", value);
+};
+
+useMouseMove(moveRef, {
   stop: true,
   prevent: true,
   moveLimit: true,
   scale: scaleRef,
   boundary: containerRef,
   down() {
+    getMoveSize();
     emits("select", props.id);
     emits("update:active", props.id);
   },
   move(data) {
-    const { vertical, level } = data;
+    const { vertical, level, disX, disY } = data;
     emits("direction", { vertical, level });
     emits("update:direction", Object.assign(props.direction, { vertical, level }));
-  },
-  up(data) {
-    const { disX, disY } = data;
-    updateStyle({ width: 0, height: 0, left: disX, top: disY });
+    setMoveStyle({ left: disX, top: disY });
   }
 });
 
-// 改变宽高
-const dis = reactive({
-  top: 0,
-  left: 0,
-  width: 0,
-  height: 0
+const onDownSize = () => {
+  getMoveSize();
+};
+const onChange = (options: MoveChangeOptions) => {
+  setMoveStyle(options);
+};
+
+onMounted(() => {
+  if (props.style) {
+    const { top = 0, left = 0, width = 200, height = 50 } = props.style;
+    setMoveStyle({
+      top: toNumber(top),
+      left: toNumber(left),
+      width: toNumber(width),
+      height: toNumber(height)
+    });
+  }
 });
 
-const onChange = (options: MoveChangeOptions) => {
-  Object.assign(dis, options);
-};
 const onChangeSize = (data: MoveDataType) => {
   const { vertical, level } = data;
   emits("direction", { vertical, level });
   emits("update:direction", Object.assign(props.direction, { vertical, level }));
 };
-
-const styles = computed<CSSProperties>(() => {
-  const { top: t = 0, left: l = 0, width: w = 0, height: h = 0 } = styleRef.value ?? {};
-
-  return {
-    top: `${toNumber(t) + data.disY + dis.top}px`,
-    left: `${toNumber(l) + data.disX + dis.left}px`,
-    width: `${toNumber(w) + dis.width}px`,
-    height: `${toNumber(h) + dis.height}px`
-  };
-});
 </script>
 
 <style lang="scss" scoped>

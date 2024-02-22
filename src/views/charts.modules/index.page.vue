@@ -46,10 +46,10 @@
             <YMove
               v-for="item in configList"
               :key="item.id"
-              v-model:style="item.style"
+              :style="item.style"
               :container="canvasRef"
               :id="item.id"
-              @change="onChange"
+              @change="onChange($event, item)"
               v-model:active="active"
               v-model:direction="direction"
             >
@@ -96,8 +96,14 @@ const configList = reactive<ConfigItem[]>([
 const active = ref<string | number>();
 const direction = reactive({} as MoveDirectionType);
 
-const onChange = (data: MoveChangeOptions) => {
-  console.log(data);
+const onChange = (data: MoveChangeOptions, item: ConfigItem) => {
+  const { width, height, left, top } = data;
+  Object.assign(item.style, {
+    top: `${top}px`,
+    left: `${left}px`,
+    width: `${width}px`,
+    height: `${height}px`
+  });
 };
 </script>
 
