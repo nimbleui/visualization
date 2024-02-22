@@ -21,7 +21,7 @@ defineOptions({
 });
 
 const props = defineProps<GuidelinesPropsTypes>();
-const showLine = reactive([]);
+const showLine = reactive<{ site: number; direction: "x" | "y" }[]>([]);
 
 const activeItem = computed(() => {
   const { current, configList } = props;
@@ -32,10 +32,53 @@ const keys = ["top", "left", "width", "height"] as Array<"top" | "left" | "width
 const callback = (val: any) => parseInt(val);
 const handleGuideline = (current: ConfigItem) => {
   const { configList, direction } = props;
-  const currentSize = objectTransform(current.style, keys, callback);
+  showLine.length = 0;
+  const {
+    top: t = 0,
+    left: l = 0,
+    width: w = 0,
+    height: h = 0
+  } = objectTransform(current.style, keys, callback);
+  const r = l + w;
+  const b = t + h;
   configList.forEach((item) => {
-    const size = objectTransform(item.style, keys, callback);
-    if (currentSize.top == size.top) {
+    if (item.id == activeItem.value?.id) return;
+
+    const {
+      width = 0,
+      height = 0,
+      left = 0,
+      top = 0
+    } = objectTransform(item.style, keys, callback);
+    const right = left + width;
+    const bottom = top + height;
+
+    // 横方向判断
+    if (l == right) {
+      showLine.push({
+        site: right,
+        direction: "y"
+      });
+    } else if (l == left) {
+      showLine.push({
+        site: left,
+        direction: "y"
+      });
+    }
+
+    if (r == right) {
+      showLine.push({
+        site: right,
+        direction: "y"
+      });
+    } else if (r == left) {
+      showLine.push({
+        site: left,
+        direction: "y"
+      });
+    }
+
+    if (t == top) {
       console.log(111);
     }
   });
