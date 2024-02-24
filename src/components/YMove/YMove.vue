@@ -17,6 +17,8 @@ import type { MovePropsTypes, MoveChangeOptions, MoveEmitsTypes, MoveDirectionTy
 import { useMouseMove, type MoveDataType } from "@nimble-ui/vue";
 import YBorder from "./YBorder.vue";
 import { onMounted } from "vue";
+import { objectTransform } from "@/utils";
+import { watch } from "vue";
 
 defineOptions({
   name: "YMove"
@@ -86,17 +88,18 @@ const onChange = (options: MoveChangeOptions) => {
   setMoveStyle(options);
 };
 
-onMounted(() => {
-  if (props.style) {
-    const { top = 0, left = 0, width = 200, height = 50 } = props.style;
-    setMoveStyle({
-      top: toNumber(top),
-      left: toNumber(left),
-      width: toNumber(width),
-      height: toNumber(height)
-    });
-  }
-});
+const keys = ["top", "left", "width", "height"] as Array<"top" | "left" | "width" | "height">;
+const handleStyle = () => {
+  const value = objectTransform(props.style ?? {}, keys, (val) => String(val));
+  if (!moveRef.value) return;
+  moveRef.value.style.top = value.top;
+  moveRef.value.style.left = value.left;
+  moveRef.value.style.width = value.width;
+  moveRef.value.style.height = value.height;
+};
+
+onMounted(handleStyle);
+watch(() => props.style, handleStyle, { deep: true });
 
 const onChangeSize = (data: MoveDataType) => {
   const { vertical, level } = data;

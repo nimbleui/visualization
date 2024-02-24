@@ -6,8 +6,14 @@ export function objectTransform<
   T extends { [key: string]: any },
   K extends keyof T,
   C extends (val: T[K], key: K) => any
->(obj: T, keys: Array<K>, callback: C): { [K in (typeof keys)[number]]: ReturnType<C> };
-
+>(obj: T, keys: Array<K>, callback: C): { [R in K]: ReturnType<C> };
+/**
+ * 取对象部分值，返回新的对象
+ * @param obj 目标对象
+ * @param keys key数组
+ * @param callback 转换值的函数
+ * @returns
+ */
 export function objectTransform<
   T extends { [key: string]: any },
   K extends keyof T,

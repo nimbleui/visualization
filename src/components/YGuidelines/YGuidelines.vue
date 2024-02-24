@@ -1,11 +1,15 @@
 <template>
   <div class="y-guidelines">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
+    <span
+      v-for="(item, index) in showLine"
+      :style="{
+        left: item.direction == 'y' ? `${item.site}px` : 0,
+        top: item.direction == 'x' ? `${item.site}px` : 0
+      }"
+      class="y-guidelines__line"
+      :class="item.direction"
+      :key="index"
+    ></span>
   </div>
 </template>
 
@@ -29,7 +33,51 @@ const activeItem = computed(() => {
 });
 
 const keys = ["top", "left", "width", "height"] as Array<"top" | "left" | "width" | "height">;
-const callback = (val: any) => parseInt(val);
+const callback = (val: any) => (val ? parseInt(val) : 0);
+const DIFF = 3;
+const handleLineShow = (item: ConfigItem, currentLine: number, isVertical?: boolean) => {
+  const { width = 0, height = 0, left = 0, top = 0 } = objectTransform(item.style, keys, callback);
+  const right = left + width;
+  const level = left + width / 2;
+  const bottom = top + height;
+  const vertical = top + height / 2;
+
+  if (isVertical) {
+    if (Math.abs(currentLine - top) < DIFF) {
+      showLine.push({
+        site: top,
+        direction: "x"
+      });
+    } else if (Math.abs(currentLine - vertical) < DIFF) {
+      showLine.push({
+        site: vertical,
+        direction: "x"
+      });
+    } else if (Math.abs(currentLine - bottom) < DIFF) {
+      showLine.push({
+        site: bottom,
+        direction: "x"
+      });
+    }
+  } else {
+    if (Math.abs(currentLine - left) < DIFF) {
+      showLine.push({
+        site: left,
+        direction: "y"
+      });
+    } else if (Math.abs(currentLine - level) < DIFF) {
+      showLine.push({
+        site: level,
+        direction: "y"
+      });
+    } else if (Math.abs(currentLine - right) < DIFF) {
+      showLine.push({
+        site: right,
+        direction: "y"
+      });
+    }
+  }
+};
 const handleGuideline = (current: ConfigItem) => {
   const { configList, direction } = props;
   showLine.length = 0;
@@ -40,47 +88,22 @@ const handleGuideline = (current: ConfigItem) => {
     height: h = 0
   } = objectTransform(current.style, keys, callback);
   const r = l + w;
+  const lc = l + w / 2;
   const b = t + h;
+  const vc = t + h / 2;
+
   configList.forEach((item) => {
     if (item.id == activeItem.value?.id) return;
 
-    const {
-      width = 0,
-      height = 0,
-      left = 0,
-      top = 0
-    } = objectTransform(item.style, keys, callback);
-    const right = left + width;
-    const bottom = top + height;
-
     // 横方向判断
-    if (l == right) {
-      showLine.push({
-        site: right,
-        direction: "y"
-      });
-    } else if (l == left) {
-      showLine.push({
-        site: left,
-        direction: "y"
-      });
-    }
+    handleLineShow(item, l);
+    handleLineShow(item, lc);
+    handleLineShow(item, r);
 
-    if (r == right) {
-      showLine.push({
-        site: right,
-        direction: "y"
-      });
-    } else if (r == left) {
-      showLine.push({
-        site: left,
-        direction: "y"
-      });
-    }
-
-    if (t == top) {
-      console.log(111);
-    }
+    // 竖直方向判断
+    handleLineShow(item, t, true);
+    handleLineShow(item, vc, true);
+    handleLineShow(item, b, true);
   });
 };
 
@@ -93,4 +116,20 @@ watch(
 );
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.y-guidelines {
+  &__line {
+    position: absolute;
+    background-color: var(--y-color-primary);
+
+    &.x {
+      width: 100%;
+      height: 1px;
+    }
+    &.y {
+      width: 1px;
+      height: 100%;
+    }
+  }
+}
+</style>
