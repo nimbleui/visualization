@@ -1,5 +1,5 @@
 <template>
-  <div ref="moveRef" class="y-move">
+  <div @contextmenu="onContextmenu" ref="moveRef" class="y-move">
     <slot />
     <YBorder
       v-if="id === active"
@@ -35,7 +35,6 @@ const moveRef = ref<HTMLElement>();
 const scaleRef = computed(() => props.scale ?? 1);
 // 限制的边界元素
 const containerRef = computed(() => props.container);
-const toNumber = (v: string | number) => parseInt("" + v);
 
 const startSize = reactive({ w: 0, h: 0, l: 0, t: 0 });
 const getMoveSize = () => {
@@ -105,6 +104,12 @@ const onChangeSize = (data: MoveDataType) => {
   const { vertical, level } = data;
   emits("direction", { vertical, level });
   emits("update:direction", Object.assign(props.direction, { vertical, level }));
+};
+
+const onContextmenu = (event: MouseEvent) => {
+  event.preventDefault();
+  const { clientX, clientY } = event;
+  emits("contextmenu", { id: props.id, x: clientX, y: clientY });
 };
 </script>
 

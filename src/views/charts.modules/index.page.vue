@@ -52,6 +52,7 @@
               @change="onChange($event, item)"
               v-model:active="active"
               v-model:direction="direction"
+              @contextmenu="onContextmenu"
             >
               1111
             </YMove>
@@ -61,11 +62,14 @@
         </YScrollbar>
       </YFlex>
     </YFlex>
+
+    <YContextmenu v-show="showContextmenu" v-bind="contextmenuData" />
   </YFlex>
 </template>
 
 <script setup lang="ts">
 import YGuidelines, { type ConfigItem } from "@/components/YGuidelines";
+import YContextmenu from "@/components/YContextmenu";
 import type { MoveChangeOptions, MoveDirectionType } from "@/components/YMove";
 import { reactive, ref } from "vue";
 
@@ -105,11 +109,20 @@ const onChange = (data: MoveChangeOptions, item: ConfigItem) => {
     height: `${height}px`
   });
 };
+
+// 处理右击菜单
+const showContextmenu = ref(false);
+const contextmenuData = reactive({ id: -1, x: 0, y: 0 });
+const onContextmenu = (value: { id: number | string; x: number; y: number }) => {
+  Object.assign(contextmenuData, value);
+  showContextmenu.value = true;
+};
 </script>
 
 <style lang="scss">
 .chart {
   height: 100vh;
+  background-color: var(--y-color-bg-layout);
 }
 .header {
   padding: 0.6rem 1rem;

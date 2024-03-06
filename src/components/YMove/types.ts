@@ -19,4 +19,5 @@ export interface MoveEmitsTypes {
   (e: "select", value: string | number): void;
   (e: "direction", value: MoveDirectionType): void;
   (e: "update:direction", value: MoveDirectionType): void;
+  (e: "contextmenu", value: { id: string | number; x: number; y: number }): void;
 }
