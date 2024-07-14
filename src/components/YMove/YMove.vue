@@ -1,12 +1,14 @@
 <template>
-  <div @contextmenu="onContextmenu" ref="moveRef" class="y-move">
+  <div ref="moveRef" class="y-move" :class="{ active: index == active }">
     <slot />
     <YBorder
-      v-if="id === active"
+      v-if="index == active"
       :container="containerRef"
       @move="onChangeSize"
       @change="onChange"
       @down="onDownSize"
+      :style="props.style"
+      :scale="scale"
     />
   </div>
 </template>
@@ -19,6 +21,7 @@ import YBorder from "./YBorder.vue";
 import { onMounted } from "vue";
 import { objectTransform } from "@/utils";
 import { watch } from "vue";
+import useGuidelines from "./useGuidelines";
 
 defineOptions({
   name: "YMove"
@@ -39,27 +42,15 @@ const containerRef = computed(() => props.container);
 const startSize = reactive({ w: 0, h: 0, l: 0, t: 0 });
 const getMoveSize = () => {
   if (!moveRef.value) return;
-  const { offsetHeight: h, offsetLeft: l, offsetWidth: w, offsetTop: t } = moveRef.value;
+  const { offsetHeight: h, offsetLeft: l, offsetTop: t, offsetWidth: w } = moveRef.value;
   Object.assign(startSize, { w, h, l, t });
 };
 
-const setMoveStyle = (data: { width?: number; height?: number; left?: number; top?: number }) => {
-  if (!moveRef.value) return;
-  const { w, h, l, t } = startSize;
-  const { width = 0, height = 0, left = 0, top = 0 } = data;
-  const value = {
-    id: props.id,
-    top: t + top,
-    left: l + left,
-    width: w + width,
-    height: h + height
-  };
-  moveRef.value.style.top = `${value.top}px`;
-  moveRef.value.style.left = `${value.left}px`;
-  moveRef.value.style.width = `${value.width}px`;
-  moveRef.value.style.height = `${value.height}px`;
-  emits("change", value);
-};
+const lineOptions = computed(() => ({
+  selector: ".y-move",
+  scaleRatio: props.scale
+}));
+const { markLineEmit } = useGuidelines(moveRef, lineOptions);
 
 useMouseMove(moveRef, {
   stop: true,
@@ -69,14 +60,27 @@ useMouseMove(moveRef, {
   boundary: containerRef,
   down() {
     getMoveSize();
-    emits("select", props.id);
-    emits("update:active", props.id);
+    emits("select", props.index);
+    emits("update:active", props.index);
+    markLineEmit("start");
   },
   move(data) {
     const { vertical, level, disX, disY } = data;
     emits("direction", { vertical, level });
+    emits("update:move", true);
     emits("update:direction", Object.assign(props.direction, { vertical, level }));
-    setMoveStyle({ left: disX, top: disY });
+    const val = markLineEmit("move", { y: disY, x: disX })!;
+    emits("change", {
+      index: props.index,
+      width: startSize.w,
+      height: startSize.h,
+      top: Math.round(startSize.t + disY + val.diffY),
+      left: Math.round(startSize.l + disX + val.diffX)
+    });
+  },
+  up() {
+    markLineEmit("end");
+    emits("update:move", false);
   }
 });
 
@@ -84,17 +88,22 @@ const onDownSize = () => {
   getMoveSize();
 };
 const onChange = (options: MoveChangeOptions) => {
-  setMoveStyle(options);
+  emits("change", { index: props.index, ...options });
 };
 
-const keys = ["top", "left", "width", "height"] as Array<"top" | "left" | "width" | "height">;
+const keys = ["top", "left", "width", "height", "rotate"] as Array<
+  "top" | "left" | "width" | "height" | "rotate"
+>;
 const handleStyle = () => {
-  const value = objectTransform(props.style ?? {}, keys, (val) => String(val));
+  const value: any = objectTransform(props.style ?? {}, keys, (val) =>
+    val ? parseInt(String(val)) : 0
+  );
   if (!moveRef.value) return;
-  moveRef.value.style.top = value.top;
-  moveRef.value.style.left = value.left;
-  moveRef.value.style.width = value.width;
-  moveRef.value.style.height = value.height;
+  moveRef.value.style.top = `${value.top}px`;
+  moveRef.value.style.left = `${value.left}px`;
+  moveRef.value.style.width = `${value.width}px`;
+  moveRef.value.style.height = `${value.height}px`;
+  moveRef.value.style.transform = `rotate(${value.rotate || 0}deg)`;
 };
 
 onMounted(handleStyle);
@@ -105,22 +114,28 @@ const onChangeSize = (data: MoveDataType) => {
   emits("direction", { vertical, level });
   emits("update:direction", Object.assign(props.direction, { vertical, level }));
 };
-
-const onContextmenu = (event: MouseEvent) => {
-  event.preventDefault();
-  const { clientX, clientY } = event;
-  emits("contextmenu", { id: props.id, x: clientX, y: clientY });
-};
 </script>
 
 <style lang="scss" scoped>
 .y-move {
   position: absolute;
   box-sizing: border-box;
-  border: 1px dashed var(--y-color-primary);
+  border: 1px dashed transparent;
 
   &:hover {
-    border: 1px dashed var(--y-color-primary);
+    border-color: var(--y-color-primary);
+    cursor: move;
+  }
+
+  &.active {
+    user-select: none;
+    border-color: var(--y-color-primary);
+  }
+
+  & > :deep(*) {
+    margin-top: -1px;
+    margin-left: -1px;
+    box-sizing: border-box;
   }
 }
 </style>

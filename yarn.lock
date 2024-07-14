@@ -468,10 +468,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@nimble-ui/vue@0.3.3":
-  version "0.3.3"
-  resolved "https://registry.npmjs.org/@nimble-ui/vue/-/vue-0.3.3.tgz#8d6ce0a54e6693447941d1c811b3af0ee10d8db8"
-  integrity sha512-Udc68ZlCdyVNRD5HZdzeuvY5GXHbUM2RrcHhyVqB7RIm/z0C2zHKk4gOuMtg+UxSSaknmd72Uux6diz2SLN8aw==
+"@nimble-ui/vue@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.npmjs.org/@nimble-ui/vue/-/vue-0.5.2.tgz#065e2d7c2c0c42a7b1a9a94cfee0e0b376b0365c"
+  integrity sha512-/3De8y1MGAard3w9EX0iyJsi5JeXKIN2+Df6ywAW8IGSkP0SIJ5A31PK/H5T3UUXp9ZwSKe6PKoh8q7tOEeHmw==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"

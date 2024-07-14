@@ -44,7 +44,8 @@
         <YScrollbar>
           <div ref="canvasRef" class="content__warp--canvas">
             <YMove
-              v-for="item in configList"
+              v-for="(item, index) in configList"
+              :index="index"
               :key="item.id"
               :style="item.style"
               :container="canvasRef"
@@ -54,11 +55,11 @@
               v-model:direction="direction"
               @contextmenu="onContextmenu"
             >
-              1111
+              <div class="move-item">1111</div>
             </YMove>
           </div>
 
-          <YGuidelines :config-list="configList" :current="active" :direction="direction" />
+          <!-- <YGuidelines :config-list="configList" :current="active" :direction="direction" /> -->
         </YScrollbar>
       </YFlex>
     </YFlex>
@@ -165,6 +166,10 @@ const onContextmenu = (value: { id: number | string; x: number; y: number }) => 
       position: relative;
       height: 900px;
     }
+  }
+  .move-item {
+    width: 100px;
+    height: 100px;
   }
 }
 </style>
