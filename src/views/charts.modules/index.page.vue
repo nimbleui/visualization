@@ -40,28 +40,7 @@
 
         <YFlex flex="1" class="content__menu--type"> </YFlex>
       </YFlex>
-      <YFlex flex="1" class="content__warp">
-        <YScrollbar>
-          <div ref="canvasRef" class="content__warp--canvas">
-            <YMove
-              v-for="(item, index) in configList"
-              :index="index"
-              :key="item.id"
-              :style="item.style"
-              :container="canvasRef"
-              :id="item.id"
-              @change="onChange($event, item)"
-              v-model:active="active"
-              v-model:direction="direction"
-              @contextmenu="onContextmenu"
-            >
-              <div class="move-item">1111</div>
-            </YMove>
-          </div>
-
-          <!-- <YGuidelines :config-list="configList" :current="active" :direction="direction" /> -->
-        </YScrollbar>
-      </YFlex>
+      <YCanvas v-model:active="active" :configList="configList"></YCanvas>
     </YFlex>
 
     <YContextmenu v-show="showContextmenu" v-bind="contextmenuData" />
@@ -69,7 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import YGuidelines, { type ConfigItem } from "@/components/YGuidelines";
+import { type ConfigItem } from "@/components/YGuidelines";
+import YCanvas from "@/components/YCanvas";
 import YContextmenu from "@/components/YContextmenu";
 import type { MoveChangeOptions, MoveDirectionType } from "@/components/YMove";
 import { reactive, ref } from "vue";
