@@ -26,3 +26,7 @@ export function objectTransform<
   }
   return result;
 }
+
+export function toInt(val?: string | number) {
+  return parseInt(String(val || 0));
+}

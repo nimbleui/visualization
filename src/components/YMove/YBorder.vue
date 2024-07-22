@@ -11,10 +11,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref, type CSSProperties } from "vue";
+import { computed, watch, ref } from "vue";
 import { useMouseMove, type MoveDataType } from "@nimble-ui/vue";
 import type { MoveChangeOptions } from "./types";
 import { objectTransform } from "@/utils";
+import type { CommonRectType } from "../types";
 
 interface EmitsTypes {
   (e: "down", data: MoveChangeOptions): void;
@@ -23,10 +24,9 @@ interface EmitsTypes {
   (e: "change", data: MoveChangeOptions): void;
 }
 
-interface BorderPropsTypes {
+interface BorderPropsTypes extends CommonRectType {
   container?: HTMLElement;
   scale?: number;
-  style?: CSSProperties;
 }
 
 defineOptions({
@@ -74,8 +74,7 @@ useMouseMove(warpRef, {
     if (target.dataset.type) return target;
   },
   down() {
-    const { style = {} } = props;
-    const values = objectTransform(style, ["width", "height", "left", "top", "rotate"], (val) =>
+    const values = objectTransform(props, ["width", "height", "left", "top", "angle"], (val) =>
       val ? parseInt(String(val)) : 0
     );
     Object.assign(warpRect, values, {
@@ -116,7 +115,7 @@ const sin = (deg: number) => Math.sin(degToRadian(deg));
 const handleRatio = (deltaX: number, deltaY: number, type: string, ratio?: number) => {
   const alpha = Math.atan2(deltaY, deltaX);
   const deltaL = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-  const beta = alpha - degToRadian(Number(props.style?.rotate || 0));
+  const beta = alpha - degToRadian(Number(props.angle || 0));
   let deltaW = deltaL * Math.cos(beta);
   let deltaH = deltaL * Math.sin(beta);
 
@@ -244,7 +243,7 @@ const handleRatio = (deltaX: number, deltaY: number, type: string, ratio?: numbe
 };
 
 const getCursor = () => {
-  const rotate = (Number(props?.style?.rotate || 0) + 360) % 360; // 取余 360
+  const rotate = (Number(props.angle || 0) + 360) % 360; // 取余 360
   const result: any = {};
   let lastMatchIndex = -1; // 从上一个命中的角度的索引开始匹配下一个，降低时间复杂度
 
@@ -274,7 +273,7 @@ const getCursor = () => {
 };
 
 watch(
-  () => props.style,
+  props,
   () => {
     cursors.value = getCursor();
   },

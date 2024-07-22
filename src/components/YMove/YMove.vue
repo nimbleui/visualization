@@ -1,5 +1,6 @@
 <template>
   <div ref="moveRef" class="y-move" :class="{ active: index == active }">
+    111
     <slot />
     <YBorder
       v-if="index == active"
@@ -7,7 +8,11 @@
       @move="onChangeSize"
       @change="onChange"
       @down="onDownSize"
-      :style="props.style"
+      :top="top"
+      :left="left"
+      :width="width"
+      :height="height"
+      :angle="angle"
       :scale="scale"
     />
   </div>
@@ -91,23 +96,21 @@ const onChange = (options: MoveChangeOptions) => {
   emits("change", { index: props.index, ...options });
 };
 
-const keys = ["top", "left", "width", "height", "rotate"] as Array<
-  "top" | "left" | "width" | "height" | "rotate"
+const keys = ["top", "left", "width", "height", "angle"] as Array<
+  "top" | "left" | "width" | "height" | "angle"
 >;
 const handleStyle = () => {
-  const value: any = objectTransform(props.style ?? {}, keys, (val) =>
-    val ? parseInt(String(val)) : 0
-  );
+  const value = objectTransform(props ?? {}, keys, (val) => (val ? parseInt(String(val)) : 0));
   if (!moveRef.value) return;
   moveRef.value.style.top = `${value.top}px`;
   moveRef.value.style.left = `${value.left}px`;
   moveRef.value.style.width = `${value.width}px`;
   moveRef.value.style.height = `${value.height}px`;
-  moveRef.value.style.transform = `rotate(${value.rotate || 0}deg)`;
+  moveRef.value.style.transform = `rotate(${value.angle || 0}deg)`;
 };
 
 onMounted(handleStyle);
-watch(() => props.style, handleStyle, { deep: true });
+watch(props, handleStyle, { deep: true });
 
 const onChangeSize = (data: MoveDataType) => {
   const { vertical, level } = data;

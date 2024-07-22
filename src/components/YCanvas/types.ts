@@ -1,8 +1,10 @@
+import type { YMoveItemType } from "../types";
+
 export interface CanvasPropsTypes {
   move?: boolean;
   height?: number | string;
   width?: number | string;
-  configList: any[];
+  configList: YMoveItemType[];
   active?: number | string;
 }
 

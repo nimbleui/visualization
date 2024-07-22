@@ -1,7 +1,10 @@
+import type { YMoveItemType } from "../types";
+
 export interface AreaPropsTypes {
   el?: HTMLElement;
   boundary?: HTMLElement;
   scale?: number;
+  configList: YMoveItemType[];
 }
 
 export interface AreaEmitsTypes {

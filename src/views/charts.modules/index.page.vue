@@ -48,56 +48,44 @@
 </template>
 
 <script setup lang="ts">
-import { type ConfigItem } from "@/components/YGuidelines";
+import { type YMoveItemType } from "@/components/types";
 import YCanvas from "@/components/YCanvas";
 import YContextmenu from "@/components/YContextmenu";
-import type { MoveChangeOptions, MoveDirectionType } from "@/components/YMove";
 import { reactive, ref } from "vue";
 
 defineOptions({
   name: "chartIndexPage"
 });
-const canvasRef = ref<HTMLDivElement>();
 
-const configList = reactive<ConfigItem[]>([
+const configList = reactive<YMoveItemType[]>([
   {
     id: 1,
-    style: {
-      width: "150px",
-      height: "60px",
-      top: "100px",
-      left: "100px"
-    }
+    componentName: "YText",
+    width: "150px",
+    height: "60px",
+    top: "100px",
+    left: "100px"
   },
   {
     id: 2,
-    style: {
-      width: "150px",
-      height: "60px"
-    }
+    componentName: "YText",
+    width: "150px",
+    height: "60px"
+  },
+  {
+    id: 3,
+    componentName: "YText",
+    width: "150px",
+    height: "60px",
+    top: "200px",
+    left: "200px"
   }
 ]);
 
 const active = ref<string | number>();
-const direction = reactive({} as MoveDirectionType);
-
-const onChange = (data: MoveChangeOptions, item: ConfigItem) => {
-  const { width, height, left, top } = data;
-  Object.assign(item.style, {
-    top: `${top}px`,
-    left: `${left}px`,
-    width: `${width}px`,
-    height: `${height}px`
-  });
-};
-
 // 处理右击菜单
 const showContextmenu = ref(false);
 const contextmenuData = reactive({ id: -1, x: 0, y: 0 });
-const onContextmenu = (value: { id: number | string; x: number; y: number }) => {
-  Object.assign(contextmenuData, value);
-  showContextmenu.value = true;
-};
 </script>
 
 <style lang="scss">

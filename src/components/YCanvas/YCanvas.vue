@@ -6,17 +6,23 @@
           v-for="(item, index) in configList"
           :index="index"
           :key="item.id"
-          :style="item.style"
-          :container="canvasRef"
           :id="item.id"
           :scale="scaleRef"
+          :container="canvasRef"
+          v-bind="getPropsValue(item)"
           v-model:active="current"
+          :componentName="item.componentName"
           @change="onChange($event, item)"
         >
-          <div class="move-item">1111</div>
         </YMove>
 
-        <YArea :el="canvasRef" :boundary="canvasRef" :scale="scaleRef" />
+        <YArea
+          :el="canvasRef"
+          :scale="scaleRef"
+          :boundary="canvasRef"
+          v-model:config-list="configList"
+          @up="onUpArea"
+        />
       </div>
     </YScrollbar>
     <div class="y-canvas__bottom"></div>
@@ -28,6 +34,8 @@ import { computed, ref, type CSSProperties, type ComponentPublicInstance } from 
 import { useResizeObserver } from "@nimble-ui/vue";
 import type { CanvasPropsTypes, CanvasEmitsTypes } from "./types";
 import type { MoveChangeOptions } from "../YMove";
+import { objectTransform, toInt } from "@/utils";
+import type { YMoveItemType } from "../types";
 
 defineOptions({ name: "YCanvas" });
 const props = withDefaults(defineProps<CanvasPropsTypes>(), { width: 1920, height: 1080 });
@@ -39,10 +47,7 @@ const contentRef = computed(() => warpRef.value?.$el);
 const scaleRef = ref(1);
 useResizeObserver(contentRef, () => {
   const warpRect = contentRef.value?.getBoundingClientRect();
-  const canvasRect = canvasRef.value?.getBoundingClientRect();
-
-  const w = canvasRect?.width || 0;
-  const h = canvasRect?.height || 0;
+  const { height: h, width: w } = objectTransform(props, ["width", "height"], toInt);
   const wScale = warpRect.width / w;
   const hScale = warpRect.height / h;
   scaleRef.value = Math.min(wScale, hScale);
@@ -67,12 +72,21 @@ const handleDrag = (e: DragEvent) => {
 
 const onChange = (data: MoveChangeOptions, item: any) => {
   const { width, height, left, top } = data;
-  Object.assign(item.style, {
+  Object.assign(item, {
     top: `${top}px`,
     left: `${left}px`,
     width: `${width}px`,
     height: `${height}px`
   });
+};
+
+const getPropsValue = (item: YMoveItemType) => {
+  const value = objectTransform(item, ["angle", "height", "left", "top", "width", "zIndex"], toInt);
+  return value;
+};
+
+const onUpArea = () => {
+  console.log(11);
 };
 </script>
 

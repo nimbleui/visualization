@@ -1,9 +1,8 @@
-import type { CSSProperties } from "vue";
+import type { YMoveItemType } from "../types";
 
-export interface MovePropsTypes {
+export interface MovePropsTypes extends YMoveItemType {
   index: number;
   scale?: number;
-  style?: CSSProperties;
   container?: HTMLElement;
   active?: number | string | null;
   direction?: MoveDirectionType;
