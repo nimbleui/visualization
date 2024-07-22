@@ -4,7 +4,7 @@ export interface AreaPropsTypes {
   el?: HTMLElement;
   boundary?: HTMLElement;
   scale?: number;
-  configList: YMoveItemType[];
+  data: YMoveItemType[];
 }
 
 export interface AreaEmitsTypes {

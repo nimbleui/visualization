@@ -1,9 +1,9 @@
 <template>
-  <div ref="moveRef" class="y-move" :class="{ active: index == active }">
+  <div ref="moveRef" class="y-move" :id="`${id}`" :class="{ active: active == id }">
     111
     <slot />
     <YBorder
-      v-if="index == active"
+      v-if="active == id"
       :container="containerRef"
       @move="onChangeSize"
       @change="onChange"
@@ -66,7 +66,7 @@ useMouseMove(moveRef, {
   down() {
     getMoveSize();
     emits("select", props.index);
-    emits("update:active", props.index);
+    emits("update:active", props.id ?? props.index);
     markLineEmit("start");
   },
   move(data) {

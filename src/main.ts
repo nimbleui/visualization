@@ -11,6 +11,7 @@ import YIcon from "@/components/YIcon";
 import YMove from "./components/YMove";
 import YArea from "./components/YArea";
 import YText from "./components/YText";
+import YGroup from "./components/YGroup";
 
 const app = createApp(App);
 
@@ -24,5 +25,6 @@ app.component("YIcon", YIcon);
 app.component("YMove", YMove);
 app.component("YArea", YArea);
 app.component("YText", YText);
+app.component("YGroup", YGroup);
 
 app.mount("#app");

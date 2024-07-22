@@ -40,7 +40,7 @@
 
         <YFlex flex="1" class="content__menu--type"> </YFlex>
       </YFlex>
-      <YCanvas v-model:active="active" :configList="configList"></YCanvas>
+      <YCanvas v-model:active="active" v-model:data="configList" />
     </YFlex>
 
     <YContextmenu v-show="showContextmenu" v-bind="contextmenuData" />

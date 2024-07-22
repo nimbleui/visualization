@@ -6,7 +6,7 @@
 import { computed, reactive, ref, type CSSProperties } from "vue";
 import type { AreaPropsTypes } from "./types";
 import { useMouseMove } from "@nimble-ui/vue";
-import { objectTransform, toInt } from "@/utils";
+import { objectTransform, toInt, useId } from "@/utils";
 import type { GroupItemType, YMoveItemType } from "../types";
 
 export interface AreaInfoType {
@@ -23,13 +23,13 @@ const props = defineProps<AreaPropsTypes>();
 const emits = defineEmits<{
   (e: "up", data: AreaInfoType): void;
   (e: "move", data: AreaInfoType): void;
+  (e: "update:data", data: YMoveItemType[]): void;
 }>();
 
 const elComp = computed(() => props.el);
 const scaleComp = computed(() => props.scale ?? 1);
 const boundaryComp = computed(() => props.boundary);
 const isMove = ref(false);
-const list = computed<GroupItemType[]>(() => props.configList.map((el) => ({ ...el })));
 const areaInfo = reactive<AreaInfoType>({
   top: 0,
   left: 0,
@@ -39,6 +39,7 @@ const areaInfo = reactive<AreaInfoType>({
   startX: 0
 });
 
+let oldList: YMoveItemType[] = [];
 useMouseMove(elComp, {
   scale: scaleComp,
   boundary: boundaryComp,
@@ -48,10 +49,10 @@ useMouseMove(elComp, {
     const rect = boundaryComp.value?.getBoundingClientRect();
     areaInfo.startY = data.startY - (rect?.top || 0) / scaleComp.value;
     areaInfo.startX = data.startX - (rect?.left || 0) / scaleComp.value;
+    // 记录列表
+    oldList = props.data.map((el) => ({ ...el }));
     // 重置选择的状态
-    list.value.forEach((item) => {
-      item.selected = false;
-    });
+    props.data.forEach((item) => (item.selected = false));
   },
   move(data) {
     const { disX, disY } = data;
@@ -75,10 +76,8 @@ useMouseMove(elComp, {
 });
 const keys = ["top", "left", "width", "height"] as Array<"top" | "left" | "width" | "height">;
 function areaMove(data: AreaInfoType) {
-  list.value?.forEach((item) => {
-    const { left, top, width, height } = objectTransform(item, keys, (val) =>
-      parseInt(String(val ?? "0"))
-    );
+  props.data.forEach((item) => {
+    const { left, top, width, height } = objectTransform(item, keys, toInt);
     const containLeft = data.left < left && data.left + data.width > width + left;
     const containTop = data.top < top && data.top + data.width > height + top;
     item.selected = containLeft && containTop;
@@ -86,13 +85,14 @@ function areaMove(data: AreaInfoType) {
 }
 
 function makeGroup() {
-  const selectItems = list.value.filter((el) => el.selected);
+  const selectItems = props.data.filter((el) => el.selected);
   if (!selectItems.length) return;
 
   let minX = Infinity,
     maxX = -Infinity,
     minY = Infinity,
     maxY = -Infinity;
+  const { left: l = 0, top: t = 0 } = boundaryComp.value!.getBoundingClientRect() || {};
   selectItems.forEach((item) => {
     const {
       left = 0,
@@ -100,14 +100,13 @@ function makeGroup() {
       top = 0,
       bottom = 0
     } = document.getElementById(String(item.id))?.getBoundingClientRect() || {};
-    const { left: l = 0, top: t = 0 } = boundaryComp.value!.getBoundingClientRect() || {};
 
     minX = Math.min(minX, left - l);
     maxX = Math.max(maxX, right - l);
     minY = Math.min(minY, top - t);
     maxY = Math.max(maxY, bottom - t);
   });
-
+  console.log(minX, maxX, minY, maxY);
   const groupRect = {
     top: minY,
     left: minX,
@@ -116,21 +115,28 @@ function makeGroup() {
   };
 
   selectItems.forEach((item) => {
-    item.left = toInt(item.left) - minX;
-    item.top = toInt(item.top) - minY;
-    const { left, top, width, height } = objectTransform(
-      item,
-      ["width", "top", "left", "height"],
-      toInt
-    );
-    item.groupStyle = {
-      ...item,
+    const t = toInt(item.top) - minY;
+    const l = toInt(item.left) - minX;
+    const { width, height } = objectTransform(item, keys, toInt);
+    Object.assign(item, {
+      top: toPercent(t, groupRect.top),
+      left: toPercent(l, groupRect.left),
       width: toPercent(width, groupRect.width),
-      height: toPercent(height, groupRect.height),
-      left: toPercent(left, groupRect.left),
-      top: toPercent(top, groupRect.top)
-    };
+      height: toPercent(height, groupRect.height)
+    });
   });
+  const { data } = props;
+  const newList = props.data.filter((el) => !el.selected);
+  data.length = 0;
+  data.push(...newList, {
+    id: useId(),
+    componentName: "YGroup",
+    ...groupRect,
+    props: {
+      elements: selectItems
+    }
+  });
+  emits("update:data", data);
 }
 
 function toPercent(numerator: number, denominator: number) {

@@ -1,6 +1,6 @@
 <template>
   <div class="y-group">
-    <component v-for="item in elements" :key="item.id" :is="'YText'"></component>
+    <component v-for="item in elements" :key="item.id" :is="item.componentName"></component>
   </div>
 </template>
 
@@ -15,7 +15,7 @@ const props = defineProps<GroupPropsTypes>();
 
 <style lang="scss" scoped>
 .y-group {
-  position: relative;
+  position: absolute;
   border: 1px solid var(--y-color-primary);
 }
 </style>

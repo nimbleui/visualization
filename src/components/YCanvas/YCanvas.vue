@@ -3,7 +3,7 @@
     <YScrollbar class="y-canvas__scroll">
       <div :style="styles" @drag="handleDrag" ref="canvasRef" class="y-canvas__content">
         <YMove
-          v-for="(item, index) in configList"
+          v-for="(item, index) in dataComp"
           :index="index"
           :key="item.id"
           :id="item.id"
@@ -20,7 +20,7 @@
           :el="canvasRef"
           :scale="scaleRef"
           :boundary="canvasRef"
-          v-model:config-list="configList"
+          v-model:data="dataComp"
           @up="onUpArea"
         />
       </div>
@@ -56,6 +56,11 @@ useResizeObserver(contentRef, () => {
 const current = computed({
   get: () => props.active,
   set: (val) => emits("update:active", val!)
+});
+
+const dataComp = computed({
+  get: () => props.data,
+  set: (val) => emits("update:data", val)
 });
 
 const styles = computed<CSSProperties>(() => {

@@ -15,5 +15,5 @@ export interface YMoveItemType extends CommonRectType {
 }
 
 export interface GroupItemType extends YMoveItemType {
-  groupStyle?: YMoveItemType
+  groupStyle?: YMoveItemType;
 }

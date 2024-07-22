@@ -1,5 +1,7 @@
+import type { YMoveItemType } from "../types";
+
 export interface GroupPropsTypes {
-  elements: any[];
+  elements: YMoveItemType[];
 }
 
 export interface GroupEmitsTypes {
