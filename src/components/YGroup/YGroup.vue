@@ -1,6 +1,19 @@
 <template>
   <div class="y-group">
-    <component v-for="item in elements" :key="item.id" :is="item.componentName"></component>
+    <div
+      class="y-group__item"
+      v-for="item in elements"
+      :key="item.id"
+      :style="{
+        width: `${item.width}`,
+        height: `${item.height}`,
+        transform: `rotate(${item.angle ?? 0}deg)`,
+        left: `${item.left}`,
+        top: `${item.top}`
+      }"
+    >
+      <component :is="item.componentName" />
+    </div>
   </div>
 </template>
 
@@ -10,12 +23,16 @@ import type { GroupPropsTypes } from "./types";
 defineOptions({
   name: "YGroup"
 });
-const props = defineProps<GroupPropsTypes>();
+defineProps<GroupPropsTypes>();
 </script>
 
 <style lang="scss" scoped>
 .y-group {
+  width: 100%;
+  height: 100%;
   position: absolute;
-  border: 1px solid var(--y-color-primary);
+  &__item {
+    position: absolute;
+  }
 }
 </style>

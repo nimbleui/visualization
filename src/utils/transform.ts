@@ -30,3 +30,17 @@ export function objectTransform<
 export function toInt(val?: string | number) {
   return parseInt(String(val || 0));
 }
+
+export function getBoundingClientRectByScale(el: Element | HTMLElement, scale = 1) {
+  const rect = el.getBoundingClientRect();
+  const values = objectTransform(
+    rect,
+    ["top", "left", "right", "bottom", "width", "height"],
+    (val) => val / scale
+  );
+
+  return {
+    ...rect,
+    ...values
+  } as DOMRect;
+}

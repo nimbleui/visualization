@@ -5,6 +5,7 @@ export interface AreaPropsTypes {
   boundary?: HTMLElement;
   scale?: number;
   data: YMoveItemType[];
+  active?: string | number;
 }
 
 export interface AreaEmitsTypes {

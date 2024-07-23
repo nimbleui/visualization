@@ -14,6 +14,7 @@
           :componentName="item.componentName"
           @change="onChange($event, item)"
         >
+          <component :is="item.componentName" v-bind="item.props" />
         </YMove>
 
         <YArea
@@ -21,7 +22,7 @@
           :scale="scaleRef"
           :boundary="canvasRef"
           v-model:data="dataComp"
-          @up="onUpArea"
+          v-model:active="current"
         />
       </div>
     </YScrollbar>
@@ -88,10 +89,6 @@ const onChange = (data: MoveChangeOptions, item: any) => {
 const getPropsValue = (item: YMoveItemType) => {
   const value = objectTransform(item, ["angle", "height", "left", "top", "width", "zIndex"], toInt);
   return value;
-};
-
-const onUpArea = () => {
-  console.log(11);
 };
 </script>
 

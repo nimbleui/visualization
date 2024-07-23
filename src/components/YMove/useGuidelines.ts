@@ -1,4 +1,4 @@
-import { objectTransform } from "@/utils";
+import { getBoundingClientRectByScale } from "@/utils";
 import { computed, type Ref } from "vue";
 
 interface OptionsGuidelines {
@@ -25,20 +25,6 @@ const defaultMarkLine = {
   diffX: 0,
   diffY: 0
 };
-
-export function getBoundingClientRectByScale(el: Element | HTMLElement, scale = 1) {
-  const rect = el.getBoundingClientRect();
-  const values = objectTransform(
-    rect,
-    ["top", "left", "right", "bottom", "width", "height"],
-    (val) => val / scale
-  );
-
-  return {
-    ...rect,
-    ...values
-  } as DOMRect;
-}
 
 export default function useGuidelines(
   targetRef: Ref<HTMLElement | undefined>,

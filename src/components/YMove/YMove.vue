@@ -1,6 +1,5 @@
 <template>
   <div ref="moveRef" class="y-move" :id="`${id}`" :class="{ active: active == id }">
-    111
     <slot />
     <YBorder
       v-if="active == id"
@@ -19,18 +18,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, reactive } from "vue";
+import { computed, ref, reactive, onMounted, watch } from "vue";
 import type { MovePropsTypes, MoveChangeOptions, MoveEmitsTypes, MoveDirectionType } from "./types";
 import { useMouseMove, type MoveDataType } from "@nimble-ui/vue";
 import YBorder from "./YBorder.vue";
-import { onMounted } from "vue";
-import { objectTransform } from "@/utils";
-import { watch } from "vue";
+import { objectTransform, toInt } from "@/utils";
 import useGuidelines from "./useGuidelines";
 
-defineOptions({
-  name: "YMove"
-});
+defineOptions({ name: "YMove" });
 
 const props = withDefaults(defineProps<MovePropsTypes>(), {
   direction: () => ({}) as MoveDirectionType
@@ -100,7 +95,7 @@ const keys = ["top", "left", "width", "height", "angle"] as Array<
   "top" | "left" | "width" | "height" | "angle"
 >;
 const handleStyle = () => {
-  const value = objectTransform(props ?? {}, keys, (val) => (val ? parseInt(String(val)) : 0));
+  const value = objectTransform(props ?? {}, keys, toInt);
   if (!moveRef.value) return;
   moveRef.value.style.top = `${value.top}px`;
   moveRef.value.style.left = `${value.left}px`;

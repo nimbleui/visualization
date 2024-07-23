@@ -6,8 +6,8 @@
 import { computed, reactive, ref, type CSSProperties } from "vue";
 import type { AreaPropsTypes } from "./types";
 import { useMouseMove } from "@nimble-ui/vue";
-import { objectTransform, toInt, useId } from "@/utils";
-import type { GroupItemType, YMoveItemType } from "../types";
+import { getBoundingClientRectByScale, objectTransform, toInt, useId } from "@/utils";
+import type { YMoveItemType } from "../types";
 
 export interface AreaInfoType {
   top: number;
@@ -24,6 +24,7 @@ const emits = defineEmits<{
   (e: "up", data: AreaInfoType): void;
   (e: "move", data: AreaInfoType): void;
   (e: "update:data", data: YMoveItemType[]): void;
+  (e: "update:active", id: string | number): void;
 }>();
 
 const elComp = computed(() => props.el);
@@ -39,18 +40,24 @@ const areaInfo = reactive<AreaInfoType>({
   startX: 0
 });
 
-let oldList: YMoveItemType[] = [];
+const groupInfo = {
+  list: [] as YMoveItemType[],
+  isGroup: false
+};
 useMouseMove(elComp, {
   scale: scaleComp,
   boundary: boundaryComp,
   prevent: true,
   stop: true,
   down(data) {
+    if (groupInfo.isGroup) {
+      cancelGroup();
+    }
     const rect = boundaryComp.value?.getBoundingClientRect();
     areaInfo.startY = data.startY - (rect?.top || 0) / scaleComp.value;
     areaInfo.startX = data.startX - (rect?.left || 0) / scaleComp.value;
     // 记录列表
-    oldList = props.data.map((el) => ({ ...el }));
+    groupInfo.list = props.data.map((el) => ({ ...el }));
     // 重置选择的状态
     props.data.forEach((item) => (item.selected = false));
   },
@@ -83,35 +90,39 @@ function areaMove(data: AreaInfoType) {
     item.selected = containLeft && containTop;
   });
 }
-
+const boundaryRect = computed(() => {
+  return getBoundingClientRectByScale(boundaryComp.value!, scaleComp.value);
+});
+/**
+ * 组合元素
+ */
 function makeGroup() {
   const selectItems = props.data.filter((el) => el.selected);
   if (!selectItems.length) return;
+
+  // 标记是否存在合并
+  groupInfo.isGroup = true;
 
   let minX = Infinity,
     maxX = -Infinity,
     minY = Infinity,
     maxY = -Infinity;
-  const { left: l = 0, top: t = 0 } = boundaryComp.value!.getBoundingClientRect() || {};
+  const { left: l = 0, top: t = 0 } = boundaryRect.value;
   selectItems.forEach((item) => {
-    const {
-      left = 0,
-      right = 0,
-      top = 0,
-      bottom = 0
-    } = document.getElementById(String(item.id))?.getBoundingClientRect() || {};
-
+    const { left, right, top, bottom } = getBoundingClientRectByScale(
+      document.getElementById(String(item.id))!,
+      scaleComp.value
+    );
     minX = Math.min(minX, left - l);
     maxX = Math.max(maxX, right - l);
     minY = Math.min(minY, top - t);
     maxY = Math.max(maxY, bottom - t);
   });
-  console.log(minX, maxX, minY, maxY);
   const groupRect = {
-    top: minY,
-    left: minX,
-    width: maxX - minX,
-    height: maxY - minY
+    top: Math.round(minY),
+    left: Math.round(minX),
+    width: Math.round(maxX - minX),
+    height: Math.round(maxY - minY)
   };
 
   selectItems.forEach((item) => {
@@ -119,8 +130,8 @@ function makeGroup() {
     const l = toInt(item.left) - minX;
     const { width, height } = objectTransform(item, keys, toInt);
     Object.assign(item, {
-      top: toPercent(t, groupRect.top),
-      left: toPercent(l, groupRect.left),
+      top: toPercent(t, groupRect.height),
+      left: toPercent(l, groupRect.width),
       width: toPercent(width, groupRect.width),
       height: toPercent(height, groupRect.height)
     });
@@ -128,19 +139,40 @@ function makeGroup() {
   const { data } = props;
   const newList = props.data.filter((el) => !el.selected);
   data.length = 0;
+  const id = useId();
   data.push(...newList, {
-    id: useId(),
-    componentName: "YGroup",
+    id,
     ...groupRect,
+    selected: true,
+    componentName: "YGroup",
     props: {
       elements: selectItems
     }
   });
   emits("update:data", data);
+  emits("update:active", id);
 }
 
 function toPercent(numerator: number, denominator: number) {
-  return `${numerator / denominator}%`;
+  return `${((numerator / denominator) * 100).toFixed(2)}%`;
+}
+
+/**
+ * 取消组合
+ */
+function cancelGroup() {
+  const current = props.data.find((el) => el.selected);
+  if (!current || current.componentName !== "YGroup") return;
+  groupInfo.isGroup = false;
+
+  const items = current.props.elements as YMoveItemType[];
+
+  items.forEach((item) => {
+    const { left, right, top, bottom } = getBoundingClientRectByScale(
+      document.getElementById(String(item.id))!,
+      scaleComp.value
+    );
+  });
 }
 
 const style = computed<CSSProperties>(() => {
