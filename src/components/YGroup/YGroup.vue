@@ -4,6 +4,7 @@
       class="y-group__item"
       v-for="item in elements"
       :key="item.id"
+      :id="item.id ? `${item.id}` : undefined"
       :style="{
         width: `${item.width}`,
         height: `${item.height}`,

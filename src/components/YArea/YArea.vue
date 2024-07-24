@@ -168,11 +168,34 @@ function cancelGroup() {
   const items = current.props.elements as YMoveItemType[];
 
   items.forEach((item) => {
-    const { left, right, top, bottom } = getBoundingClientRectByScale(
+    const { left, width, top, height } = getBoundingClientRectByScale(
       document.getElementById(String(item.id))!,
       scaleComp.value
     );
+    const center = {
+      x: left - boundaryRect.value.left + width / 2,
+      y: top - boundaryRect.value.top + height / 2
+    };
+    const w = toInt(current.width) * perToNum(item.width);
+    const h = toInt(current.height) * perToNum(item.height);
+    const find = groupInfo.list.find((el) => el.id == item.id);
+    if (find) {
+      find.width = w;
+      find.height = h;
+      find.top = center.y - h / 2;
+      find.left = center.x - w / 2;
+      find.angle = toInt(find.angle) + toInt(current.angle);
+    }
   });
+  const { data } = props;
+  data.length = 0;
+  data.push(...groupInfo.list);
+  emits("update:data", data);
+}
+
+function perToNum(perStr: any) {
+  if (!perStr) return 0;
+  return parseFloat(perStr as string) / 100;
 }
 
 const style = computed<CSSProperties>(() => {

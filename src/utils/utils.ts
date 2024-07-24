@@ -1,4 +1,4 @@
 let uid = 1;
-export function useId(prefix = "yr") {
+export function useId(prefix = "y") {
   return `${prefix}-${Date.now()}-${uid++}`;
 }
