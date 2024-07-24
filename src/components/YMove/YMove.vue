@@ -60,7 +60,7 @@ useMouseMove(moveRef, {
   boundary: containerRef,
   down() {
     getMoveSize();
-    emits("select", props.index);
+    emits("select", props.id ?? props.index);
     emits("update:active", props.id ?? props.index);
     markLineEmit("start");
   },
@@ -131,9 +131,9 @@ const onChangeSize = (data: MoveDataType) => {
   }
 
   & > :deep(*) {
-    margin-top: -1px;
-    margin-left: -1px;
-    box-sizing: border-box;
+    position: absolute;
+    top: -1px;
+    left: -1px;
   }
 }
 </style>

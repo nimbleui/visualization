@@ -1,6 +1,8 @@
 import type { YMoveItemType } from "../types";
 
 export interface GroupPropsTypes {
+  width?: string | number;
+  height?: string | number;
   elements: YMoveItemType[];
 }
 

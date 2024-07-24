@@ -1,7 +1,13 @@
 <template>
   <YFlex ref="warpRef" align="center" flex="1" vertical class="y-canvas">
     <YScrollbar class="y-canvas__scroll">
-      <div :style="styles" @drag="handleDrag" ref="canvasRef" class="y-canvas__content">
+      <div
+        @mousedown="onClickCanvas"
+        :style="styles"
+        @drag="handleDrag"
+        ref="canvasRef"
+        class="y-canvas__content"
+      >
         <YMove
           v-for="(item, index) in dataComp"
           :index="index"
@@ -13,11 +19,13 @@
           v-model:active="current"
           :componentName="item.componentName"
           @change="onChange($event, item)"
+          @select="onSelect"
         >
           <component :is="item.componentName" v-bind="item.props" />
         </YMove>
 
         <YArea
+          ref="areaRef"
           :el="canvasRef"
           :scale="scaleRef"
           :boundary="canvasRef"
@@ -87,8 +95,18 @@ const onChange = (data: MoveChangeOptions, item: any) => {
 };
 
 const getPropsValue = (item: YMoveItemType) => {
-  const value = objectTransform(item, ["angle", "height", "left", "top", "width", "zIndex"], toInt);
-  return value;
+  return objectTransform(item, ["angle", "height", "left", "top", "width", "zIndex"], toInt);
+};
+
+// 点击画布取消选择状态
+const onClickCanvas = () => {
+  current.value = undefined;
+};
+const areaRef = ref();
+const onSelect = () => {
+  if (areaRef.value.isGroup) {
+    areaRef.value.cancelGroup();
+  }
 };
 </script>
 

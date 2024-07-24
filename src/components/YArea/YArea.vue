@@ -41,6 +41,7 @@ const areaInfo = reactive<AreaInfoType>({
 });
 
 const groupInfo = {
+  id: "",
   list: [] as YMoveItemType[],
   isGroup: false
 };
@@ -119,10 +120,10 @@ function makeGroup() {
     maxY = Math.max(maxY, bottom - t);
   });
   const groupRect = {
-    top: Math.round(minY),
-    left: Math.round(minX),
-    width: Math.round(maxX - minX),
-    height: Math.round(maxY - minY)
+    top: minY,
+    left: minX,
+    width: maxX - minX,
+    height: maxY - minY
   };
 
   selectItems.forEach((item) => {
@@ -140,6 +141,7 @@ function makeGroup() {
   const newList = props.data.filter((el) => !el.selected);
   data.length = 0;
   const id = useId();
+  groupInfo.id = id;
   data.push(...newList, {
     id,
     ...groupRect,
@@ -154,7 +156,7 @@ function makeGroup() {
 }
 
 function toPercent(numerator: number, denominator: number) {
-  return `${((numerator / denominator) * 100).toFixed(2)}%`;
+  return `${(numerator / denominator) * 100}%`;
 }
 
 /**
@@ -164,7 +166,6 @@ function cancelGroup() {
   const current = props.data.find((el) => el.selected);
   if (!current || current.componentName !== "YGroup") return;
   groupInfo.isGroup = false;
-
   const items = current.props.elements as YMoveItemType[];
 
   items.forEach((item) => {
@@ -180,13 +181,20 @@ function cancelGroup() {
     const h = toInt(current.height) * perToNum(item.height);
     const find = groupInfo.list.find((el) => el.id == item.id);
     if (find) {
-      find.width = w;
-      find.height = h;
-      find.top = center.y - h / 2;
-      find.left = center.x - w / 2;
+      find.width = Math.round(w);
+      find.height = Math.round(h);
+      find.top = Math.round(center.y - h / 2);
+      find.left = Math.round(center.x - w / 2);
       find.angle = toInt(find.angle) + toInt(current.angle);
     }
   });
+
+  const notSelect = props.data.filter((el) => !el.selected);
+  groupInfo.list.forEach((el, index) => {
+    const find = notSelect.find((item) => item.id === el.id);
+    if (find) groupInfo.list[index] = find;
+  });
+
   const { data } = props;
   data.length = 0;
   data.push(...groupInfo.list);
@@ -206,6 +214,8 @@ const style = computed<CSSProperties>(() => {
     height: `${areaInfo.height}px`
   };
 });
+
+defineExpose({ cancelGroup, groupInfo });
 </script>
 
 <style lang="scss" scoped>

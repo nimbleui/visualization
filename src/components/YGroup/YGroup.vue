@@ -29,8 +29,10 @@ defineProps<GroupPropsTypes>();
 
 <style lang="scss" scoped>
 .y-group {
-  width: 100%;
-  height: 100%;
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  right: -1px;
   position: absolute;
   &__item {
     position: absolute;

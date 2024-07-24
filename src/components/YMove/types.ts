@@ -16,7 +16,7 @@ export type MoveDirectionType = { vertical: MoveDirectionVertical; level: MoveDi
 export interface MoveEmitsTypes {
   (e: "change", data: MoveChangeOptions & { index: number }): void;
   (e: "update:active", value: number | string): void;
-  (e: "select", value: number): void;
+  (e: "select", value: number | string): void;
   (e: "direction", value: MoveDirectionType): void;
   (e: "update:direction", value: MoveDirectionType): void;
   (e: "update:move", value: boolean): void;

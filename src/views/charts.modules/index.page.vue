@@ -40,7 +40,7 @@
 
         <YFlex flex="1" class="content__menu--type"> </YFlex>
       </YFlex>
-      <YCanvas v-model:active="active" v-model:data="configList" />
+      <YCanvas width="1620" height="900" v-model:active="active" v-model:data="configList" />
     </YFlex>
 
     <YContextmenu v-show="showContextmenu" v-bind="contextmenuData" />
@@ -92,6 +92,7 @@ const contextmenuData = reactive({ id: -1, x: 0, y: 0 });
 .chart {
   height: 100vh;
   background-color: var(--y-color-bg-layout);
+  overflow: hidden;
 }
 .header {
   padding: 0.6rem 1rem;
@@ -103,6 +104,7 @@ const contextmenuData = reactive({ id: -1, x: 0, y: 0 });
   }
 }
 .content {
+  overflow: hidden;
   &__menu {
     width: 300px;
     height: 100%;
