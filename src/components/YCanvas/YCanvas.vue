@@ -103,8 +103,8 @@ const onClickCanvas = () => {
   current.value = undefined;
 };
 const areaRef = ref();
-const onSelect = () => {
-  if (areaRef.value.isGroup) {
+const onSelect = (id: string | number) => {
+  if (areaRef.value.groupInfo.id !== id) {
     areaRef.value.cancelGroup();
   }
 };

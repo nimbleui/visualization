@@ -120,10 +120,10 @@ function makeGroup() {
     maxY = Math.max(maxY, bottom - t);
   });
   const groupRect = {
-    top: minY,
-    left: minX,
-    width: maxX - minX,
-    height: maxY - minY
+    top: Math.round(minY),
+    left: Math.round(minX),
+    width: Math.round(maxX - minX),
+    height: Math.round(maxY - minY)
   };
 
   selectItems.forEach((item) => {
